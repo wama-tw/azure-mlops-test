@@ -30,7 +30,7 @@ jobs:
   prep_data:
     name: prep_data
     display_name: prep-data
-    code: ../../../data-science/src
+    code: ../../../data-science/src # Local path to the source code directory to be uploaded and used for the job.
     command: >-
       python prep.py
       --raw_data ${{inputs.raw_data}}
