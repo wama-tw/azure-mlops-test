@@ -19,37 +19,6 @@ import mlflow.sklearn
 import mlflow.pyfunc
 from mlflow.tracking import MlflowClient
 
-TARGET_COL = "cost"
-
-NUMERIC_COLS = [
-    "distance",
-    "dropoff_latitude",
-    "dropoff_longitude",
-    "passengers",
-    "pickup_latitude",
-    "pickup_longitude",
-    "pickup_weekday",
-    "pickup_month",
-    "pickup_monthday",
-    "pickup_hour",
-    "pickup_minute",
-    "pickup_second",
-    "dropoff_weekday",
-    "dropoff_month",
-    "dropoff_monthday",
-    "dropoff_hour",
-    "dropoff_minute",
-    "dropoff_second",
-]
-
-CAT_NOM_COLS = [
-    "store_forward",
-    "vendor",
-]
-
-CAT_ORD_COLS = [
-]
-
 def parse_args():
     '''Parse input arguments'''
 
@@ -71,8 +40,8 @@ def main(args):
     test_data = pd.read_parquet(Path(args.test_data))
 
     # Split the data into inputs and outputs
-    y_test = test_data[TARGET_COL]
-    X_test = test_data[NUMERIC_COLS + CAT_NOM_COLS + CAT_ORD_COLS]
+    y_test = test_data[["Label"]]
+    X_test = test_data[["Sentence"]]
 
     # Load the model from input port
     model =  mlflow.sklearn.load_model(args.model_input) 

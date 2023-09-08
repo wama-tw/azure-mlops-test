@@ -4,12 +4,6 @@
 Prepares raw data and provides training, validation and test datasets
 """
 
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License.
-"""
-Prepares raw data and provides training, validation and test datasets
-"""
-
 import argparse
 
 from pathlib import Path
@@ -19,36 +13,7 @@ import pandas as pd
 
 import mlflow
 
-TARGET_COL = "cost"
-
-NUMERIC_COLS = [
-    "distance",
-    "dropoff_latitude",
-    "dropoff_longitude",
-    "passengers",
-    "pickup_latitude",
-    "pickup_longitude",
-    "pickup_weekday",
-    "pickup_month",
-    "pickup_monthday",
-    "pickup_hour",
-    "pickup_minute",
-    "pickup_second",
-    "dropoff_weekday",
-    "dropoff_month",
-    "dropoff_monthday",
-    "dropoff_hour",
-    "dropoff_minute",
-    "dropoff_second",
-]
-
-CAT_NOM_COLS = [
-    "store_forward",
-    "vendor",
-]
-
-CAT_ORD_COLS = [
-]
+COLS = ["Sentence", "Label"]
 
 def parse_args():
     '''Parse input arguments'''
@@ -78,7 +43,7 @@ def main(args):
     # -------------------------------------- #
 
     data = pd.read_csv((Path(args.raw_data)))
-    data = data[NUMERIC_COLS + CAT_NOM_COLS + CAT_ORD_COLS + [TARGET_COL]]
+    data = data[COLS]
 
     # ------------- Split Data ------------- #
     # -------------------------------------- #
@@ -100,9 +65,6 @@ def main(args):
     mlflow.log_metric('val size', val.shape[0])
     mlflow.log_metric('test size', test.shape[0])
 
-    train.to_parquet((Path(args.train_data) / "train.parquet"))
-    val.to_parquet((Path(args.val_data) / "val.parquet"))
-    test.to_parquet((Path(args.test_data) / "test.parquet"))
     train.to_parquet((Path(args.train_data) / "train.parquet"))
     val.to_parquet((Path(args.val_data) / "val.parquet"))
     test.to_parquet((Path(args.test_data) / "test.parquet"))

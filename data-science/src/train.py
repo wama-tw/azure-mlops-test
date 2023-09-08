@@ -18,38 +18,6 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 import mlflow
 import mlflow.sklearn
 
-TARGET_COL = "cost"
-
-NUMERIC_COLS = [
-    "distance",
-    "dropoff_latitude",
-    "dropoff_longitude",
-    "passengers",
-    "pickup_latitude",
-    "pickup_longitude",
-    "pickup_weekday",
-    "pickup_month",
-    "pickup_monthday",
-    "pickup_hour",
-    "pickup_minute",
-    "pickup_second",
-    "dropoff_weekday",
-    "dropoff_month",
-    "dropoff_monthday",
-    "dropoff_hour",
-    "dropoff_minute",
-    "dropoff_second",
-]
-
-CAT_NOM_COLS = [
-    "store_forward",
-    "vendor",
-]
-
-CAT_ORD_COLS = [
-]
-
-
 def parse_args():
     '''Parse input arguments'''
 
@@ -82,8 +50,8 @@ def main(args):
     train_data = pd.read_parquet(Path(args.train_data))
 
     # Split the data into input(X) and output(y)
-    y_train = train_data[TARGET_COL]
-    X_train = train_data[NUMERIC_COLS + CAT_NOM_COLS + CAT_ORD_COLS]
+    y_train = train_data[["Label"]]
+    X_train = train_data[["Sentence"]]
 
     # Train a Random Forest Regression Model with the training set
     model = RandomForestRegressor(n_estimators = args.regressor__n_estimators,
