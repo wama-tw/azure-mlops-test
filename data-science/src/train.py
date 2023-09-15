@@ -57,6 +57,7 @@ def main(args):
     label_enc_y = LabelEncoder()
     label_enc_y.fit(y_train)
     y_train = label_enc_y.transform(y_train)
+    y_train = y_train.reshape(1, -1)
 
     label_enc_X = LabelEncoder()
     label_enc_X.fit(X_train)
