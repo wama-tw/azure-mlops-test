@@ -25,6 +25,7 @@ def parse_args():
     parser = argparse.ArgumentParser("train")
     parser.add_argument("--train_data", type=str, help="Path to train dataset")
     parser.add_argument("--model_output", type=str, help="Path of output model")
+    parser.add_argument("--model_labelencoder", type=str, help="Path of output labelencoder")
 
     # classifier specific arguments
     parser.add_argument('--regressor__n_estimators', type=int, default=500,
@@ -63,7 +64,7 @@ def main(args):
     label_enc_X.fit(X_train)
     X_train = label_enc_X.transform(X_train)
     X_train = X_train.reshape(1, -1)
-    np.save('classes.npy', label_enc_X.classes_)
+    np.save(Path(args.model_labelencoder), label_enc_X.classes_)
 
     # Train a Random Forest Regression Model with the training set
     model = RandomForestRegressor(n_estimators = args.regressor__n_estimators,

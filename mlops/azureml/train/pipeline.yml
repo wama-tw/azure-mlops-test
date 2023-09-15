@@ -16,6 +16,7 @@ outputs:
   val_data:
   test_data:
   trained_model:
+  model_labelencoder:
   evaluation_output:
   model_info_output_path:
 # </inputs_and_outputs>
@@ -57,11 +58,13 @@ jobs:
       python train.py
       --train_data ${{inputs.train_data}}
       --model_output ${{outputs.model_output}}
+      --model_labelencoder ${{outputs.model_labelencoder}}
     environment: azureml:taxi-train-env@latest
     inputs:
       train_data: ${{parent.jobs.prep_data.outputs.train_data}}
     outputs:
       model_output: ${{parent.outputs.trained_model}}
+      model_labelencoder: ${{parent.outputs.model_labelencoder}}
 
   evaluate_model:
     name: evaluate_model
@@ -72,12 +75,14 @@ jobs:
       --model_name ${{inputs.model_name}}
       --model_input ${{inputs.model_input}}
       --test_data ${{inputs.test_data}}
+      --model_labelencoder ${{input.model_labelencoder}}
       --evaluation_output ${{outputs.evaluation_output}}
     environment: azureml:taxi-train-env@latest
     inputs:
       model_name: "taxi-model"
       model_input: ${{parent.jobs.train_model.outputs.model_output}}
       test_data: ${{parent.jobs.prep_data.outputs.test_data}}
+      model_labelencoder: ${{parent.jobs.train_model.outputs.model_labelencoder}}
     outputs:
       evaluation_output: ${{parent.outputs.evaluation_output}}
 
