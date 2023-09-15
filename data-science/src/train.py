@@ -14,6 +14,7 @@ from matplotlib import pyplot as plt
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+from sklearn.preprocessing import LabelEncoder
 
 import mlflow
 import mlflow.sklearn
@@ -52,6 +53,14 @@ def main(args):
     # Split the data into input(X) and output(y)
     y_train = train_data[["Label"]]
     X_train = train_data[["Sentence"]]
+
+    label_enc_y = LabelEncoder()
+    label_enc_y.fit(y_train)
+    y_train = label_enc_y.transform(y_train)
+
+    label_enc_X = LabelEncoder()
+    label_enc_X.fit(X_train)
+    X_train = label_enc_X.transform(X_train)
 
     # Train a Random Forest Regression Model with the training set
     model = RandomForestRegressor(n_estimators = args.regressor__n_estimators,
