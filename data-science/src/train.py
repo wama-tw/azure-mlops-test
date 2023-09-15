@@ -63,6 +63,7 @@ def main(args):
     label_enc_X.fit(X_train)
     X_train = label_enc_X.transform(X_train)
     X_train = X_train.reshape(1, -1)
+    np.save('classes.npy', label_enc_X.classes_)
 
     # Train a Random Forest Regression Model with the training set
     model = RandomForestRegressor(n_estimators = args.regressor__n_estimators,

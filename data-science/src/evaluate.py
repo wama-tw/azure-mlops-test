@@ -58,6 +58,10 @@ def main(args):
 def model_evaluation(X_test, y_test, model, evaluation_output):
 
     # Get predictions to y_test (y_test)
+    label_enc_X = LabelEncoder()
+    label_enc_X.classes__ = np.load('classes.npy')
+    X_test = label_enc_X.transform(X_test)
+    X_test = X_test.reshape(1, -1)
     yhat_test = model.predict(X_test)
 
     # Save the output data with feature columns, predicted cost, and actual cost in csv file
