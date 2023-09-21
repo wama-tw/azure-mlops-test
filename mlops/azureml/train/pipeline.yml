@@ -16,7 +16,6 @@ outputs:
   val_data:
   test_data:
   trained_model:
-  X_train:
   evaluation_output:
   model_info_output_path:
 # </inputs_and_outputs>
@@ -58,13 +57,11 @@ jobs:
       python train.py
       --train_data ${{inputs.train_data}}
       --model_output ${{outputs.model_output}}
-      --X_train ${{outputs.X_train}}
     environment: azureml:taxi-train-env@latest
     inputs:
       train_data: ${{parent.jobs.prep_data.outputs.train_data}}
     outputs:
       model_output: ${{parent.outputs.trained_model}}
-      X_train: ${{parent.outputs.X_train}}
 
   evaluate_model:
     name: evaluate_model
@@ -74,15 +71,15 @@ jobs:
       python evaluate.py
       --model_name ${{inputs.model_name}}
       --model_input ${{inputs.model_input}}
+      --train_data ${{inputs.train_data}}
       --test_data ${{inputs.test_data}}
-      --X_train ${{inputs.X_train}}
       --evaluation_output ${{outputs.evaluation_output}}
     environment: azureml:taxi-train-env@latest
     inputs:
       model_name: "taxi-model"
       model_input: ${{parent.jobs.train_model.outputs.model_output}}
+      train_data: ${{parent.jobs.prep_data.outputs.train_data}}
       test_data: ${{parent.jobs.prep_data.outputs.test_data}}
-      X_train: ${{parent.jobs.train_model.outputs.X_train}}
     outputs:
       evaluation_output: ${{parent.outputs.evaluation_output}}
 

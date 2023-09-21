@@ -26,7 +26,7 @@ def parse_args():
     parser = argparse.ArgumentParser("train")
     parser.add_argument("--train_data", type=str, help="Path to train dataset")
     parser.add_argument("--model_output", type=str, help="Path of output model")
-    parser.add_argument("--X_train", type=str, help="Path of output labelencoder")
+    # parser.add_argument("--X_train", type=str, help="Path of output labelencoder")
 
     # classifier specific arguments
     parser.add_argument('--regressor__n_estimators', type=int, default=500,
@@ -64,7 +64,7 @@ def main(args):
 
     tokenizer = tf.keras.preprocessing.text.Tokenizer()
     tokenizer.fit_on_texts(X_train)
-    np.save(f"{Path(args.X_train)}/X_train.npy", X_train)
+    # np.save(f"{Path(args.X_train)}/X_train.npy", X_train)
     X_train = tokenizer.texts_to_sequences(X_train)
     X_train = tf.keras.preprocessing.sequence.pad_sequences(X_train, maxlen=10)
 

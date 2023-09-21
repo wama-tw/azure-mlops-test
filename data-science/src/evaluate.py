@@ -30,7 +30,7 @@ def parse_args():
     parser.add_argument("--test_data", type=str, help="Path to test dataset")
     parser.add_argument("--evaluation_output", type=str, help="Path of eval results")
     parser.add_argument("--runner", type=str, help="Local or Cloud Runner", default="CloudRunner")
-    parser.add_argument("--X_train", type=str, help="Path of output labelencoder")
+    # parser.add_argument("--X_train", type=str, help="Path of output labelencoder")
 
     args = parser.parse_args()
 
@@ -66,8 +66,9 @@ def model_evaluation(X_test, y_test, model, evaluation_output):
     # y_test = label_enc_y.transform(y_test)
     # y_test = y_test.reshape(1, -1)
 
+    train_data = pd.read_parquet(Path(args.train_data))
+    X_train = train_data[["Sentence"]]
     tokenizer = tf.keras.preprocessing.text.Tokenizer()
-    X_train = np.load(f"{Path(args.X_train)}/X_train.npy", allow_pickle=True)
     tokenizer.fit_on_texts(X_train)
     X_test = tokenizer.texts_to_sequences(X_test)
     X_test = tf.keras.preprocessing.sequence.pad_sequences(X_test, maxlen=10)
