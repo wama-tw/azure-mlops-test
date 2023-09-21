@@ -8,6 +8,7 @@ Saves predictions, evaluation results and deploy flag.
 import argparse
 from pathlib import Path
 
+import tensorflow as tf
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -60,11 +61,17 @@ def main(args):
 def model_evaluation(X_test, y_test, model, evaluation_output):
 
     # Get predictions to y_test (y_test)
-    label_enc_X = LabelEncoder()
-    # X_train = np.load(f"{Path(args.X_train)}/X_train.npy", allow_pickle=True)
-    label_enc_X.fit(X_test)
-    X_test = label_enc_X.transform(X_test)
-    X_test = X_test.reshape(1, -1)
+    # label_enc_y = LabelEncoder()
+    # label_enc_y = np.load(f"{Path(args.label_encoder)}/label_encoder.npy", allow_pickle=True)
+    # y_test = label_enc_y.transform(y_test)
+    # y_test = y_test.reshape(1, -1)
+
+    tokenizer = tf.keras.preprocessing.text.Tokenizer()
+    X_train = np.load(f"{Path(args.X_train)}/X_train.npy", allow_pickle=True)
+    tokenizer.fit_on_texts(X_train)
+    X_test = tokenizer.texts_to_sequences(X_test)
+    X_test = tf.keras.preprocessing.sequence.pad_sequences(X_test, maxlen=10)
+
     yhat_test = model.predict(X_test)
 
     # Save the output data with feature columns, predicted cost, and actual cost in csv file

@@ -8,6 +8,7 @@ import argparse
 
 from pathlib import Path
 
+import tensorflow as tf
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -59,13 +60,13 @@ def main(args):
     label_enc_y.fit(y_train)
     y_train = label_enc_y.transform(y_train)
     y_train = y_train.reshape(1, -1)
+    # np.save(f"{Path(args.label_encoder)}/label_encoder.npy", label_enc_y.classes_)
 
-    label_enc_X = LabelEncoder()
-    label_enc_X.fit(X_train)
+    tokenizer = tf.keras.preprocessing.text.Tokenizer()
+    tokenizer.fit_on_texts(X_train)
     np.save(f"{Path(args.X_train)}/X_train.npy", X_train)
-    X_train = label_enc_X.transform(X_train)
-    X_train = X_train.reshape(1, -1)
-    # np.save(f"{Path(args.label_encoder)}/label_encoder.npy", label_enc_X.classes_)
+    X_train = tokenizer.texts_to_sequences(X_train)
+    X_train = tf.keras.preprocessing.sequence.pad_sequences(X_train, maxlen=10)
 
     # Train a Random Forest Regression Model with the training set
     model = RandomForestRegressor(n_estimators = args.regressor__n_estimators,
