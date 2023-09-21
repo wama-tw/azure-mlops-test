@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument("--test_data", type=str, help="Path to test dataset")
     parser.add_argument("--evaluation_output", type=str, help="Path of eval results")
     parser.add_argument("--runner", type=str, help="Local or Cloud Runner", default="CloudRunner")
-    parser.add_argument("--label_encoder", type=str, help="Path of output labelencoder")
+    parser.add_argument("--X_train", type=str, help="Path of output labelencoder")
 
     args = parser.parse_args()
 
@@ -61,7 +61,8 @@ def model_evaluation(X_test, y_test, model, evaluation_output):
 
     # Get predictions to y_test (y_test)
     label_enc_X = LabelEncoder()
-    label_enc_X.classes__ = np.load(Path(args.label_encoder))
+    # X_train = np.load(f"{Path(args.X_train)}/X_train.npy", allow_pickle=True)
+    label_enc_X.fit(X_test)
     X_test = label_enc_X.transform(X_test)
     X_test = X_test.reshape(1, -1)
     yhat_test = model.predict(X_test)
