@@ -29,6 +29,7 @@ def parse_args():
     parser.add_argument("--model_input", type=str, help="Path of input model")
     parser.add_argument("--train_data", type=str, help="Path to test dataset")
     parser.add_argument("--test_data", type=str, help="Path to test dataset")
+    parser.add_argument("--y_train", type=str, help="Path to y train data")
     parser.add_argument("--evaluation_output", type=str, help="Path of eval results")
     parser.add_argument("--runner", type=str, help="Local or Cloud Runner", default="CloudRunner")
     # parser.add_argument("--X_train", type=str, help="Path of output labelencoder")
@@ -62,6 +63,7 @@ def main(args):
 def model_evaluation(X_test, y_test, model, evaluation_output):
 
     train_data = pd.read_parquet(Path(args.train_data))
+    # y_train = np.load(f"{Path(args.y_train)}/y_train.npy", allow_pickle=True)
 
     y_train = train_data[["Label"]]
     X_train = train_data[["Sentence"]]
@@ -135,6 +137,29 @@ def model_promotion(model_name, evaluation_output, X_test, y_test, yhat_test, sc
     predictions = {}
 
     client = MlflowClient()
+    
+    train_data = pd.read_parquet(Path(args.train_data))
+    y_train = train_data[["Label"]]
+    X_train = train_data[["Sentence"]]
+    sentences = X_train["Sentence"]
+    X_train = []
+    for sentence in sentences:
+        print(sentence)
+        X_train.append(sentence)
+    tokenizer = tf.keras.preprocessing.text.Tokenizer()
+    tokenizer.fit_on_texts(X_train)
+    sentences = X_test["Sentence"]
+    X_test = []
+    for sentence in sentences:
+        print(sentence)
+        X_test.append(sentence)
+    X_test = tokenizer.texts_to_sequences(X_test)
+    X_test = tf.keras.preprocessing.sequence.pad_sequences(X_test, maxlen=10)
+    
+    label_enc_y = LabelEncoder()
+    label_enc_y.fit(y_train)
+    y_test = label_enc_y.transform(y_test)
+    y_test = y_test.reshape(-1, 1)
 
     for model_run in client.search_model_versions(f"name='{model_name}'"):
         model_version = model_run.version
