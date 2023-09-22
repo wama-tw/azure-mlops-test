@@ -27,6 +27,7 @@ def parse_args():
     parser = argparse.ArgumentParser("predict")
     parser.add_argument("--model_name", type=str, help="Name of registered model")
     parser.add_argument("--model_input", type=str, help="Path of input model")
+    parser.add_argument("--train_data", type=str, help="Path to test dataset")
     parser.add_argument("--test_data", type=str, help="Path to test dataset")
     parser.add_argument("--evaluation_output", type=str, help="Path of eval results")
     parser.add_argument("--runner", type=str, help="Local or Cloud Runner", default="CloudRunner")
@@ -60,26 +61,41 @@ def main(args):
 
 def model_evaluation(X_test, y_test, model, evaluation_output):
 
-    # Get predictions to y_test (y_test)
-    # label_enc_y = LabelEncoder()
-    # label_enc_y = np.load(f"{Path(args.label_encoder)}/label_encoder.npy", allow_pickle=True)
-    # y_test = label_enc_y.transform(y_test)
-    # y_test = y_test.reshape(1, -1)
-
     train_data = pd.read_parquet(Path(args.train_data))
+
+    y_train = train_data[["Label"]]
     X_train = train_data[["Sentence"]]
+    sentences = X_train["Sentence"]
+    X_train = []
+    for sentence in sentences:
+        print(sentence)
+        X_train.append(sentence)
+
     tokenizer = tf.keras.preprocessing.text.Tokenizer()
     tokenizer.fit_on_texts(X_train)
+    output_data = X_test.copy()
+    sentences = X_test["Sentence"]
+    X_test = []
+    for sentence in sentences:
+        print(sentence)
+        X_test.append(sentence)
     X_test = tokenizer.texts_to_sequences(X_test)
     X_test = tf.keras.preprocessing.sequence.pad_sequences(X_test, maxlen=10)
+    
+    label_enc_y = LabelEncoder()
+    label_enc_y.fit(y_train)
+    y_test = label_enc_y.transform(y_test)
+    y_test = y_test.reshape(-1, 1)
 
     yhat_test = model.predict(X_test)
 
     # Save the output data with feature columns, predicted cost, and actual cost in csv file
-    output_data = X_test.copy()
+    print(output_data)
+    print(y_test)
+    print(yhat_test)
     output_data["real_label"] = y_test
     output_data["predicted_label"] = yhat_test
-    output_data.to_csv((Path(evaluation_output) / "predictions.csv"))
+    output_data.to_csv("./predictions.csv")
 
     # Evaluate Model performance with the test set
     r2 = r2_score(y_test, yhat_test)

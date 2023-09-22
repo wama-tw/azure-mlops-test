@@ -16,6 +16,8 @@ from matplotlib import pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from sklearn.preprocessing import LabelEncoder
+from keras.models import Sequential
+from keras.layers import Dense
 
 import mlflow
 import mlflow.sklearn
@@ -26,7 +28,6 @@ def parse_args():
     parser = argparse.ArgumentParser("train")
     parser.add_argument("--train_data", type=str, help="Path to train dataset")
     parser.add_argument("--model_output", type=str, help="Path of output model")
-    # parser.add_argument("--X_train", type=str, help="Path of output labelencoder")
 
     # classifier specific arguments
     parser.add_argument('--regressor__n_estimators', type=int, default=500,
@@ -55,27 +56,28 @@ def main(args):
     # Split the data into input(X) and output(y)
     y_train = train_data[["Label"]]
     X_train = train_data[["Sentence"]]
+    maxlen = 10
 
-    label_enc_y = LabelEncoder()
-    label_enc_y.fit(y_train)
-    y_train = label_enc_y.transform(y_train)
-    y_train = y_train.reshape(1, -1)
-    # np.save(f"{Path(args.label_encoder)}/label_encoder.npy", label_enc_y.classes_)
+    label_enc = LabelEncoder()
+    label_enc.fit(y_train)
 
+    sentences = X_train["Sentence"]
+    X_train = []
+    for sentence in sentences:
+        print(sentence)
+        X_train.append(sentence)
+    print(X_train)
     tokenizer = tf.keras.preprocessing.text.Tokenizer()
     tokenizer.fit_on_texts(X_train)
-    # np.save(f"{Path(args.X_train)}/X_train.npy", X_train)
-    X_train = tokenizer.texts_to_sequences(X_train)
-    X_train = tf.keras.preprocessing.sequence.pad_sequences(X_train, maxlen=10)
 
-    # Train a Random Forest Regression Model with the training set
-    model = RandomForestRegressor(n_estimators = args.regressor__n_estimators,
-                                  bootstrap = args.regressor__bootstrap,
-                                  max_depth = args.regressor__max_depth,
-                                  max_features = args.regressor__max_features,
-                                  min_samples_leaf = args.regressor__min_samples_leaf,
-                                  min_samples_split = args.regressor__min_samples_split,
-                                  random_state=0)
+    X_train = tokenizer.texts_to_sequences(X_train)
+    X_train = tf.keras.preprocessing.sequence.pad_sequences(X_train, maxlen=maxlen)
+
+    y_train = label_enc.transform(y_train)
+
+    model = Sequential()
+    model.add(Dense(1, activation='sigmoid', input_shape=(maxlen,)))
+    model.compile('adam', 'binary_crossentropy')
 
     # log model hyperparameters
     mlflow.log_param("model", "RandomForestRegressor")
